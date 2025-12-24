@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban de Treinos - Academia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="header">
+            <h1><i class="fas fa-dumbbell"></i> Kanban de Treinos</h1>
+            <p class="subtitle">Organize seus treinos semanais de academia</p>
+        </header>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <button class="btn btn-primary" id="addWorkoutBtn" data-bs-toggle="modal" data-bs-target="#addWorkoutModal">
+                    <i class="fas fa-plus"></i> Adicionar Treino
+                </button>
+                <button class="btn btn-outline-secondary" id="clearCompletedBtn">
+                    <i class="fas fa-trash"></i> Limpar Concluídos
+                </button>
+                <div class="current-week">
+                    <i class="fas fa-calendar-alt"></i> Semana: <span id="currentWeek"><?php echo date('W'); ?></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kanban-board">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="kanban-column">
+                        <div class="column-header status-pendente">
+                            <h3><i class="fas fa-clock"></i> Pendente</h3>
+                            <span class="badge bg-secondary" id="pendente-count">0</span>
+                        </div>
+                        <div class="tasks-list" id="pendente-list" data-status="pendente">
+                            <!-- Tarefas pendentes serão carregadas aqui -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="kanban-column">
+                        <div class="column-header status-andamento">
+                            <h3><i class="fas fa-running"></i> Em Andamento</h3>
+                            <span class="badge bg-secondary" id="andamento-count">0</span>
+                        </div>
+                        <div class="tasks-list" id="andamento-list" data-status="andamento">
+                            <!-- Tarefas em andamento serão carregadas aqui -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="kanban-column">
+                        <div class="column-header status-concluido">
+                            <h3><i class="fas fa-check-circle"></i> Concluído</h3>
+                            <span class="badge bg-secondary" id="concluido-count">0</span>
+                        </div>
+                        <div class="tasks-list" id="concluido-list" data-status="concluido">
+                            <!-- Tarefas concluídas serão carregadas aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Sistema Kanban de Treinos &copy; <?php echo date('Y'); ?> - Desenvolvido para organização de treinos</p>
+        </footer>
+    </div>
+
+    <!-- Modal para Adicionar/Editar Treino -->
+    <div class="modal fade" id="addWorkoutModal" tabindex="-1" aria-labelledby="addWorkoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addWorkoutModalLabel">Adicionar Novo Treino</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="workoutForm">
+                        <input type="hidden" id="workoutId">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="workoutName" class="form-label">Nome do Treino *</label>
+                                <input type="text" class="form-control" id="workoutName" required placeholder="Ex: Treino de Peito e Tríceps">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label">Data de Início *</label>
+                                <input type="datetime-local" class="form-control" id="startDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label">Data de Término *</label>
+                                <input type="datetime-local" class="form-control" id="endDate" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="workoutDay" class="form-label">Dia da Semana</label>
+                                <select class="form-select" id="workoutDay">
+                                    <option value="segunda">Segunda-feira</option>
+                                    <option value="terca">Terça-feira</option>
+                                    <option value="quarta">Quarta-feira</option>
+                                    <option value="quinta">Quinta-feira</option>
+                                    <option value="sexta">Sexta-feira</option>
+                                    <option value="sabado">Sábado</option>
+                                    <option value="domingo">Domingo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="recurrence" class="form-label">Recorrência</label>
+                                <select class="form-select" id="recurrence">
+                                    <option value="0">Nenhuma</option>
+                                    <option value="1" selected>Semanal</option>
+                                    <option value="2">Quinzenal</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="workoutDescription" class="form-label">Descrição do Treino</label>
+                                <textarea class="form-control" id="workoutDescription" rows="3" placeholder="Descreva os exercícios, séries e repetições..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Checklist de Exercícios</label>
+                                <div id="checklistContainer">
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control checklist-item" placeholder="Exercício (Ex: Supino reto)">
+                                        <button type="button" class="btn btn-outline-danger remove-checklist-item"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="addChecklistItem">
+                                    <i class="fas fa-plus"></i> Adicionar Exercício
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveWorkoutBtn">Salvar Treino</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Visualizar Treino -->
+    <div class="modal fade" id="viewWorkoutModal" tabindex="-1" aria-labelledby="viewWorkoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewWorkoutModalLabel">Detalhes do Treino</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="workoutDetails">
+                    <!-- Detalhes do treino serão carregados aqui -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="editWorkoutBtn">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
